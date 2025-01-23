@@ -10,7 +10,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <atomic>
-# include <functional>
+#include <functional>
 #include <list>
 
 #ifndef OVING2_WORKERS_H
@@ -24,7 +24,8 @@ public:
     void start();
     void post(void (*threadTask)());
     void join();
-    //void post_timeout();
+    void post_timeout(void (*threadTask)(), int timeout);
+    void epoll_sleep(int timeout);
 
 private:
     int numThreads;

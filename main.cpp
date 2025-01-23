@@ -1,15 +1,14 @@
 #include <iostream>
-#include <windows.h>
 #include "Workers.h"
 
 using namespace std;
 
 int main() {
-    Workers worker_threads(4);
+    //Workers worker_threads(4);
     Workers event_loop(1);
-    worker_threads.start(); // Create 4 internal threads
+    //worker_threads.start(); // Create 4 internal threads
     event_loop.start(); // Create 1 internal thread
-    worker_threads.post([] {
+    /**worker_threads.post([] {
         cout << "Hello from thread 1" << "\n";
         cout << "thread 1 finishing..." << "\n";
     });
@@ -52,8 +51,14 @@ int main() {
     event_loop.post([] {
         cout << "Hello from event loop thread 2" << "\n";
         cout << "event loop thread 2 finishing..." << "\n";
-    });
-    worker_threads.join(); // Calls join () on the worker threads
+    });*/
+    event_loop.post_timeout([] {
+        cout << "Hello from A!" << endl;
+    }, 2000);
+    event_loop.post_timeout([] {
+        cout << "Hello from B!" << endl;
+    }, 1000);
+    //worker_threads.join(); // Calls join () on the worker threads
     event_loop.join();
     return 0;
 }
