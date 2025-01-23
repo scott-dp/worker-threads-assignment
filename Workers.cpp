@@ -60,13 +60,13 @@ void Workers::post_timeout(void (*threadTask)(), int timeout) {
     cv.notify_one();
 }
 
-void Workers::epoll_sleep(int timeout) {
+void Workers::epoll_sleep(int timeoutMilliSeconds) {
     int epoll_fd = epoll_create1(0);
     epoll_event timeout;
     timeout.events = EPOLLIN;
     timeout.data.fd = timerfd_create(CLOCK_MONOTONIC , 0);
     itimerspec ts;
-    int ms = 2000; // 2 seconds
+    int ms = timeoutMilliSeconds;
     ts.it_value.tv_sec = ms / 1000; // Delay before initial event
     ts.it_value.tv_nsec = (ms % 1000) * 1000000; // Delay before initial event
     ts.it_interval.tv_sec = 0; // Period between repeated events after initial delay , 0: disabled
@@ -81,11 +81,10 @@ void Workers::epoll_sleep(int timeout) {
         for (int i = 0; i < event_count; i++) {
             cout << " event fd: " << events[i].data.fd << endl;
             if (events[i].data.fd == timeout.data.fd) {
-                cout << "2 seconds has passed " << endl;
                 // Remove timeout from epoll so that it is no longer monitored by epoll_wait :
                 epoll_ctl(epoll_fd , EPOLL_CTL_DEL , timeout.data.fd , nullptr );
+                return;
             }
         }
     }
-
 }
