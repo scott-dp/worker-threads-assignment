@@ -3,41 +3,47 @@
 //
 
 #include "Workers.h"
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <cmath>
-#include <algorithm>
-#include <mutex>
-#include <condition_variable>
 #include <mutex>
 
 using namespace std;
 
+Workers::Workers(int numThreads) {
+    //Constructor
+    this->numThreads = numThreads;
+}
+
 void Workers::post(void (*threadTask)()) {
-    unique_lock<mutex> lock(waitForVacantThreadMutex);
-    while (currentThread == numThreads) {
-        cv.wait(lock); //Unlocks waitForVacantThreadMutex, and locks again when woken up
-    }
-    //Here there now is vacant worker thread
-    currentThread++;//increase the number of used threads
-    threads.emplace_back([this, threadTask]() {
-        threadTask();
-        this->currentThread--;
-        this->cv.notify_all();
-    });
+    unique_lock<mutex> lock(taskMutex);
+    tasks.emplace_back(threadTask);
+    cv.notify_one();
 }
 
 void Workers::join() {
-    for (auto &t : threads) {
+    //Join all threads
+    stopRunning = true;
+    for (auto &t : worker_threads) {
+        cv.notify_one();
         t.join();
     }
 }
 
-Workers::Workers(int numThreads) {
-    this->numThreads = numThreads;
-}
-
 void Workers::start() {
-    threads.reserve(numThreads);
+    for (int i = 0; i < numThreads; ++i) {
+        worker_threads.emplace_back([this, i] {
+            while(true) {
+                function<void()> task;
+                {
+                    unique_lock<mutex> lock(this->taskMutex);
+                    while (tasks.empty()) {
+                        if (stopRunning) return;
+                        cv.wait(lock);
+                    }
+                    //Now there is at least one task in tasks
+                    task = *tasks.begin(); // Copy task for later use
+                    tasks.pop_front();
+                }
+                task();
+            }
+        });
+    }
 }

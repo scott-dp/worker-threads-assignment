@@ -10,6 +10,8 @@
 #include <condition_variable>
 #include <mutex>
 #include <atomic>
+# include <functional>
+#include <list>
 
 #ifndef OVING2_WORKERS_H
 #define OVING2_WORKERS_H
@@ -26,11 +28,11 @@ public:
 
 private:
     int numThreads;
-    vector<thread> threads;
-    atomic<int> currentThread = 0;
-    mutex waitForVacantThreadMutex;
+    mutex taskMutex;
     condition_variable cv;
-
+    list<function<void()>> tasks ;
+    vector<thread> worker_threads;
+    atomic<bool> stopRunning = false;
 };
 
 
