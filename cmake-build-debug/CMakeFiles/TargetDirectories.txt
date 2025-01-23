@@ -1,0 +1,3 @@
+C:/Users/scott/Documents/4. semester/nettverksprog/oving2/cmake-build-debug/CMakeFiles/oving2.dir
+C:/Users/scott/Documents/4. semester/nettverksprog/oving2/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/scott/Documents/4. semester/nettverksprog/oving2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
