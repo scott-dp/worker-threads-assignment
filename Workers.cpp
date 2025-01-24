@@ -4,6 +4,7 @@
 
 #include "Workers.h"
 #include <mutex>
+#include <Windows.h>
 
 using namespace std;
 
@@ -46,4 +47,11 @@ void Workers::start() {
             }
         });
     }
+}
+
+void Workers::post_timeout(void (*threadTask)(), int timeout) {
+    Sleep(timeout);
+    unique_lock<mutex> lock(taskMutex);
+    tasks.emplace_back(threadTask);
+    cv.notify_one();
 }

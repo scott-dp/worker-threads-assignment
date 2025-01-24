@@ -24,7 +24,7 @@ public:
     void start();
     void post(void (*threadTask)());
     void join();
-    //void post_timeout();
+    void post_timeout(void (*threadTask)(), int timeout);
 
 private:
     int numThreads;
